@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>管理者ページ（デモ）</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #fff; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #f0f8ff; cursor: pointer; }
+    input, button { margin-top: 10px; margin-right: 10px; padding: 6px; }
+    @media print {
+      button, input { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>提出されたシフト一覧（デモ仮データ）</h2>
+
+  <input type="text" id="searchInput" placeholder="名前または日付で検索">
+  <button onclick="downloadCSV()">📥 CSVダウンロード</button>
+  <button onclick="window.print()">🖨️ 印刷</button>
+
+  <table id="shiftTable">
+    <thead>
+      <tr>
+        <th onclick="sortTable(0)">名前 ⬍</th>
+        <th onclick="sortTable(1)">日付 ⬍</th>
+        <th>時間帯</th>
+        <th>メモ</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const shifts = [{"name": "佐藤", "date": "7/21", "time": "午前", "memo": "授業あり"}, {"name": "鈴木", "date": "7/22", "time": "午後", "memo": ""}, {"name": "高橋", "date": "7/23", "time": "終日", "memo": "午後からOK"}, {"name": "田中", "date": "7/24", "time": "午前", "memo": ""}, {"name": "山本", "date": "7/25", "time": "夜", "memo": "別バイトあり"}, {"name": "小林", "date": "7/26", "time": "午後", "memo": ""}, {"name": "加藤", "date": "7/27", "time": "終日", "memo": "なるべく早め"}, {"name": "中村", "date": "7/28", "time": "午前", "memo": ""}, {"name": "井上", "date": "7/29", "time": "午後", "memo": "通院あり"}, {"name": "清水", "date": "7/30", "time": "夜", "memo": ""}];
+
+    function renderTable(data) {
+      const tableBody = document.getElementById("shiftTable").querySelector("tbody");
+      tableBody.innerHTML = "";
+      if (data.length === 0) {
+        tableBody.innerHTML = "<tr><td colspan='4'>データがありません</td></tr>";
+        return;
+      }
+      data.forEach(({
+        name, date, time, memo
+      }) => {
+        const row = tableBody.insertRow();
+        row.innerHTML = `
+          <td>${name}</td>
+          <td>${date}</td>
+          <td>${time}</td>
+          <td>${memo || "-"}</td>
+        `;
+      });
+    }
+
+    function sortTable(index) {
+      shifts.sort((a, b) => {
+        const valA = Object.values(a)[index];
+        const valB = Object.values(b)[index];
+        return valA.localeCompare(valB, 'ja');
+      });
+      renderTable(shifts);
+    }
+
+    function downloadCSV() {
+      let csv = "名前,日付,時間帯,メモ\n";
+      shifts.forEach(s => {
+        const memo = s.memo ? s.memo.replace(/\n/g, ' ').replace(/"/g, '""') : "";
+        csv += `"${s.name}","${s.date}","${s.time}","${memo}"\n`;
+      });
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "shift_demo.csv";
+      link.click();
+    }
+
+    document.getElementById("searchInput").addEventListener("input", function () {
+      const keyword = this.value.trim().toLowerCase();
+      const filtered = shifts.filter(s =>
+        s.name.toLowerCase().includes(keyword) || s.date.includes(keyword)
+      );
+      renderTable(filtered);
+    });
+
+    renderTable(shifts);
+  </script>
+
+</body>
+</html>
