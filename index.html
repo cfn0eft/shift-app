@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>シフト提出フォーム（デモ用）</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f0f8ff; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+    th { background: #dcefff; }
+    input[type="text"], select, textarea { width: 100%; box-sizing: border-box; }
+    input#name { width: 200px; padding: 6px; }
+    button { margin-top: 15px; padding: 10px 20px; }
+    .saturday { background-color: #e0ffff; }
+    .sunday { background-color: #ffe4e1; }
+  </style>
+</head>
+<body>
+
+  <h2>シフト希望提出フォーム（月単位・デモ用）</h2>
+  <label>名前：<input type="text" id="name" placeholder="名前を入力" required></label>
+
+  <table id="shiftTable">
+    <thead>
+      <tr>
+        <th>日付</th>
+        <th>出勤希望</th>
+        <th>時間帯</th>
+        <th>メモ</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button onclick="submitShifts()">送信（ダミー）</button>
+
+  <script>
+    const tableBody = document.getElementById("shiftTable").querySelector("tbody");
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const weekDay = date.getDay();
+      const dateStr = `${month + 1}/${day}`;
+      let className = "";
+      if (weekDay === 0) className = "sunday";
+      else if (weekDay === 6) className = "saturday";
+
+      const row = document.createElement("tr");
+      row.className = className;
+      row.innerHTML = `
+        <td>${dateStr} (${["日","月","火","水","木","金","土"][weekDay]})</td>
+        <td><input type="checkbox" class="check"></td>
+        <td>
+          <select class="time">
+            <option value="">選択</option>
+            <option>午前</option>
+            <option>午後</option>
+            <option>夜</option>
+            <option>終日</option>
+          </select>
+        </td>
+        <td><textarea class="memo" rows="1"></textarea></td>
+      `;
+      tableBody.appendChild(row);
+    }
+
+    function submitShifts() {
+      alert("（デモ）送信ボタンが押されましたが、データは保存されません。");
+    }
+  </script>
+
+</body>
+</html>
